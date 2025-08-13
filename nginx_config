@@ -1,0 +1,14 @@
+server {
+    listen 80;
+    server_name 18.228.44.133;
+
+    location / {
+        include proxy_params;
+        proxy_pass http://unix:/home/ubuntu/flashcards_project/flashcards.sock;
+    }
+
+    location /static/ {
+        alias /home/ubuntu/flashcards_project/static/;
+    }
+}
+

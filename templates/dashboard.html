@@ -1,0 +1,408 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Header de Boas-vindas -->
+<div class="row mb-4">
+    <div class="col-12">
+        <h1 class="display-6 fw-bold mb-2">Bem-vindo de volta, {{ current_user.username }}!</h1>
+        <p class="text-muted fs-5">Continue seus estudos médicos onde parou</p>
+    </div>
+</div>
+
+<!-- Cards de Estatísticas -->
+<div class="row mb-5">
+    <div class="col-md-3 mb-4">
+        <div class="card stats-card stats-card-blue">
+            <div class="icon">
+                <i class="fas fa-brain"></i>
+            </div>
+            <h3 id="cardsStudied">127</h3>
+            <p>Cards Estudados</p>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card stats-card stats-card-green">
+            <div class="icon">
+                <i class="fas fa-bolt"></i>
+            </div>
+            <h3 id="studyStreak">7 dias</h3>
+            <p>Sequência</p>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card stats-card stats-card-purple">
+            <div class="icon">
+                <i class="fas fa-target"></i>
+            </div>
+            <h3 id="accuracy">89%</h3>
+            <p>Precisão</p>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card stats-card stats-card-cyan">
+            <div class="icon">
+                <i class="fas fa-trophy"></i>
+            </div>
+            <h3 id="dailyGoal">15/20</h3>
+            <p>Meta Diária</p>
+        </div>
+    </div>
+</div>
+
+<!-- Seções Principais -->
+<div class="row">
+    <!-- Ações Rápidas -->
+    <div class="col-lg-8 mb-4">
+        <div class="section-card">
+            <h5 class="section-title">
+                <i class="fas fa-bolt"></i>Ações Rápidas
+            </h5>
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <a href="{{ url_for('study') }}" class="action-btn d-block text-center">
+                        <div>
+                            <i class="fas fa-book-open d-block"></i>
+                            <span class="fw-semibold">Estudar</span>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <button class="action-btn-outline d-block w-100 text-center" data-bs-toggle="modal" data-bs-target="#newCardModal">
+                        <div>
+                            <i class="fas fa-plus d-block"></i>
+                            <span class="fw-semibold">Criar Novo Card</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Atividade Recente -->
+    <div class="col-lg-4 mb-4">
+        <div class="section-card">
+            <h5 class="section-title">
+                <i class="fas fa-clock"></i>Atividade Recente
+            </h5>
+            
+            <div id="recentActivities">
+                <div class="activity-item">
+                    <div class="activity-icon blue">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <div class="activity-text">
+                        <h6>Estudou Cardiologia</h6>
+                        <small>2 horas atrás</small>
+                    </div>
+                </div>
+                
+                <div class="activity-item">
+                    <div class="activity-icon green">
+                        <i class="fas fa-plus"></i>
+                    </div>
+                    <div class="activity-text">
+                        <h6>Criou 3 novos cards</h6>
+                        <small>1 dia atrás</small>
+                    </div>
+                </div>
+                
+                <div class="activity-item">
+                    <div class="activity-icon purple">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="activity-text">
+                        <h6>Entrou no grupo "Anatomia"</h6>
+                        <small>2 dias atrás</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Progresso Semanal -->
+<div class="row">
+    <div class="col-lg-8 mb-4">
+        <div class="section-card">
+            <h5 class="section-title">
+                <i class="fas fa-chart-line"></i>Progresso Semanal
+            </h5>
+            
+            <canvas id="weeklyChart" height="100"></canvas>
+        </div>
+    </div>
+    
+    <!-- Cards para Revisar -->
+    <div class="col-lg-4 mb-4">
+        <div class="section-card">
+            <h5 class="section-title">
+                <i class="fas fa-redo"></i>Para Revisar
+            </h5>
+            
+            <div class="text-center py-4">
+                <div class="display-4 fw-bold text-warning mb-2">5</div>
+                <p class="text-muted mb-3">Cards aguardando revisão</p>
+                <a href="{{ url_for('study') }}?review=true" class="btn btn-warning">
+                    <i class="fas fa-redo me-2"></i>Revisar Agora
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Novo Flashcard -->
+<div class="modal fade" id="newCardModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-plus me-2"></i>Novo Flashcard
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="newCardForm">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="cardCategory" class="form-label">Categoria</label>
+                        <select class="form-select" id="cardCategory" required>
+                            <option value="">Selecione uma categoria</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="cardQuestion" class="form-label">Pergunta</label>
+                        <textarea class="form-control" id="cardQuestion" rows="3" required placeholder="Digite a pergunta do flashcard..."></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="cardAnswer" class="form-label">Resposta</label>
+                        <textarea class="form-control" id="cardAnswer" rows="3" required placeholder="Digite a resposta do flashcard..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">
+                        <span class="btn-text">
+                            <i class="fas fa-save me-2"></i>Salvar
+                        </span>
+                        <span class="loading d-none"></span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Tutorial Modal (primeira vez) -->
+<div class="modal fade" id="tutorialModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-graduation-cap me-2"></i>Bem-vindo ao Migrado!
+                </h5>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-4">
+                    <i class="fas fa-brain fa-4x text-primary mb-3"></i>
+                    <h4>Vamos começar sua jornada de estudos!</h4>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="card border-primary">
+                            <div class="card-body text-center">
+                                <i class="fas fa-plus fa-2x text-primary mb-2"></i>
+                                <h6>1. Crie Flashcards</h6>
+                                <small class="text-muted">Organize seus estudos por categoria</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="card border-success">
+                            <div class="card-body text-center">
+                                <i class="fas fa-book-open fa-2x text-success mb-2"></i>
+                                <h6>2. Estude</h6>
+                                <small class="text-muted">Use o sistema de repetição espaçada</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="card border-warning">
+                            <div class="card-body text-center">
+                                <i class="fas fa-chart-bar fa-2x text-warning mb-2"></i>
+                                <h6>3. Acompanhe</h6>
+                                <small class="text-muted">Veja seu progresso nos relatórios</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="card border-info">
+                            <div class="card-body text-center">
+                                <i class="fas fa-users fa-2x text-info mb-2"></i>
+                                <h6>4. Conecte-se</h6>
+                                <small class="text-muted">Participe da comunidade</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info">
+                    <i class="fas fa-clock me-2"></i>
+                    <strong>Período de teste:</strong> Você tem 24 horas de acesso completo gratuito!
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
+                    <i class="fas fa-rocket me-2"></i>Começar!
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Carregar categorias
+async function loadCategories() {
+    try {
+        const response = await fetch('/api/categories');
+        const categories = await response.json();
+        
+        const select = document.getElementById('cardCategory');
+        select.innerHTML = '<option value="">Selecione uma categoria</option>';
+        
+        categories.forEach(category => {
+            const option = document.createElement('option');
+            option.value = category.id;
+            option.textContent = category.name;
+            select.appendChild(option);
+        });
+    } catch (error) {
+        console.error('Erro ao carregar categorias:', error);
+    }
+}
+
+// Gráfico de progresso semanal
+function initWeeklyChart() {
+    const ctx = document.getElementById('weeklyChart').getContext('2d');
+    
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'],
+            datasets: [{
+                label: 'Cards Estudados',
+                data: [12, 19, 15, 25, 22, 18, 20],
+                borderColor: '#4f7df3',
+                backgroundColor: 'rgba(79, 125, 243, 0.1)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: '#f3f4f6'
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Form de novo flashcard
+document.getElementById('newCardForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const btnText = submitBtn.querySelector('.btn-text');
+    const loading = submitBtn.querySelector('.loading');
+    
+    btnText.classList.add('d-none');
+    loading.classList.remove('d-none');
+    submitBtn.disabled = true;
+    
+    const data = {
+        category_id: document.getElementById('cardCategory').value,
+        question: document.getElementById('cardQuestion').value,
+        answer: document.getElementById('cardAnswer').value
+    };
+    
+    try {
+        const response = await fetch('/api/flashcards', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        });
+        
+        if (response.ok) {
+            showNotification('Flashcard criado com sucesso!', 'success');
+            document.getElementById('newCardModal').querySelector('.btn-close').click();
+            this.reset();
+            
+            // Atualizar estatísticas
+            updateStats();
+        } else {
+            const result = await response.json();
+            showNotification(result.error || 'Erro ao criar flashcard', 'danger');
+        }
+    } catch (error) {
+        showNotification('Erro de conexão', 'danger');
+    } finally {
+        btnText.classList.remove('d-none');
+        loading.classList.add('d-none');
+        submitBtn.disabled = false;
+    }
+});
+
+// Atualizar estatísticas
+async function updateStats() {
+    try {
+        const response = await fetch('/api/stats');
+        if (response.ok) {
+            const stats = await response.json();
+            
+            document.getElementById('cardsStudied').textContent = stats.total_studied || '127';
+            document.getElementById('studyStreak').textContent = (stats.streak || '7') + ' dias';
+            document.getElementById('accuracy').textContent = (stats.accuracy || '89') + '%';
+            document.getElementById('dailyGoal').textContent = `${stats.today || '15'}/${stats.goal || '20'}`;
+        }
+    } catch (error) {
+        console.error('Erro ao carregar estatísticas:', error);
+    }
+}
+
+// Inicializar página
+document.addEventListener('DOMContentLoaded', function() {
+    loadCategories();
+    initWeeklyChart();
+    updateStats();
+    
+    // Mostrar tutorial para novos usuários
+    const isFirstTime = localStorage.getItem('tutorial_shown') !== 'true';
+    if (isFirstTime) {
+        setTimeout(() => {
+            new bootstrap.Modal(document.getElementById('tutorialModal')).show();
+            localStorage.setItem('tutorial_shown', 'true');
+        }, 1000);
+    }
+});
+</script>
+{% endblock %}
+

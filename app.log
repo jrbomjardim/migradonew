@@ -1,0 +1,45 @@
+nohup: ignoring input
+ * Serving Flask app 'app'
+ * Debug mode: on
+[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://169.254.0.21:5000
+[33mPress CTRL+C to quit[0m
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 391-198-395
+ * Detected change in '/home/ubuntu/flashcards_project/wsgi.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 391-198-395
+127.0.0.1 - - [12/Aug/2025 22:59:03] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Aug/2025 23:12:46] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Aug/2025 23:18:19] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [12/Aug/2025 23:20:46] "GET /register HTTP/1.1" 200 -
+ * Detected change in '/home/ubuntu/flashcards_project/app.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 391-198-395
+ * Detected change in '/home/ubuntu/flashcards_project/app.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 391-198-395
+ * Detected change in '/home/ubuntu/flashcards_project/app.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 391-198-395
+ * Detected change in '/home/ubuntu/flashcards_project/app.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 391-198-395
+ * Detected change in '/home/ubuntu/flashcards_project/app.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 391-198-395
+ * Detected change in '/home/ubuntu/flashcards_project/app.py', reloading
+ * Restarting with stat
+  File "/home/ubuntu/flashcards_project/app.py", line 91
+    if request.method == 'POST'        username = request.json.get(\'username\')
+                                       ^^^^^^^^
+SyntaxError: invalid syntax

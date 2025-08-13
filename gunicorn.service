@@ -1,0 +1,15 @@
+[Unit]
+Description=Gunicorn instance to serve flashcards_project
+After=network.target
+
+[Service]
+User=ubuntu
+Group=www-data
+WorkingDirectory=/home/ubuntu/flashcards_project
+ExecStart=/home/ubuntu/flashcards_project/venv/bin/gunicorn --workers 3 --bind 127.0.0.1:5000 wsgi:application
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+
+

@@ -1,0 +1,365 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-lg border-0">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-crown fa-3x text-warning mb-3"></i>
+                        <h2 class="fw-bold text-primary">Upgrade para Premium</h2>
+                        <p class="text-muted">Seu período de teste expirou. Continue estudando com o plano premium!</p>
+                    </div>
+                    
+                    <!-- Plano Premium -->
+                    <div class="card border-primary mb-4">
+                        <div class="card-header bg-primary text-white text-center">
+                            <h4 class="mb-0">
+                                <i class="fas fa-star me-2"></i>Plano Premium
+                            </h4>
+                        </div>
+                        <div class="card-body text-center">
+                            <div class="display-4 fw-bold text-primary mb-2">
+                                R$ 49,99
+                            </div>
+                            <p class="text-muted mb-4">por 6 meses</p>
+                            
+                            <div class="row mb-4">
+                                <div class="col-12">
+                                    <h6 class="text-start mb-3">Recursos inclusos:</h6>
+                                    <ul class="list-unstyled text-start">
+                                        <li class="mb-2">
+                                            <i class="fas fa-check text-success me-2"></i>
+                                            Flashcards ilimitados
+                                        </li>
+                                        <li class="mb-2">
+                                            <i class="fas fa-check text-success me-2"></i>
+                                            Sistema de revisão inteligente
+                                        </li>
+                                        <li class="mb-2">
+                                            <i class="fas fa-check text-success me-2"></i>
+                                            Relatórios detalhados de progresso
+                                        </li>
+                                        <li class="mb-2">
+                                            <i class="fas fa-check text-success me-2"></i>
+                                            Acesso completo à comunidade
+                                        </li>
+                                        <li class="mb-2">
+                                            <i class="fas fa-check text-success me-2"></i>
+                                            Backup automático na nuvem
+                                        </li>
+                                        <li class="mb-2">
+                                            <i class="fas fa-check text-success me-2"></i>
+                                            Suporte prioritário
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Métodos de Pagamento -->
+                    <div class="mb-4">
+                        <h5 class="mb-3">
+                            <i class="fas fa-credit-card me-2"></i>Escolha a forma de pagamento
+                        </h5>
+                        
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="card payment-method" data-method="pix">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-qrcode fa-2x text-primary mb-2"></i>
+                                        <h6>PIX</h6>
+                                        <small class="text-muted">Aprovação instantânea</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card payment-method" data-method="card">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-credit-card fa-2x text-success mb-2"></i>
+                                        <h6>Cartão de Crédito</h6>
+                                        <small class="text-muted">Parcelamento disponível</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Formulário PIX -->
+                    <div id="pixPayment" class="payment-form d-none">
+                        <div class="card border-primary">
+                            <div class="card-header bg-primary text-white">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-qrcode me-2"></i>Pagamento via PIX
+                                </h6>
+                            </div>
+                            <div class="card-body text-center">
+                                <div class="mb-3">
+                                    <div class="qr-code-placeholder bg-light p-4 rounded">
+                                        <i class="fas fa-qrcode fa-4x text-muted"></i>
+                                        <p class="mt-2 mb-0">QR Code será gerado aqui</p>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Chave PIX (Copia e Cola)</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="pixKey" value="00020126580014BR.GOV.BCB.PIX0136..." readonly>
+                                        <button class="btn btn-outline-primary" onclick="copyPixKey()">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    Após o pagamento, sua conta será ativada automaticamente em até 5 minutos.
+                                </div>
+                                <button class="btn btn-primary btn-lg w-100" onclick="checkPixPayment()">
+                                    <i class="fas fa-check me-2"></i>Verificar Pagamento
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Formulário Cartão -->
+                    <div id="cardPayment" class="payment-form d-none">
+                        <div class="card border-success">
+                            <div class="card-header bg-success text-white">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-credit-card me-2"></i>Pagamento com Cartão
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <form id="cardForm">
+                                    <div class="mb-3">
+                                        <label for="cardNumber" class="form-label">Número do Cartão</label>
+                                        <input type="text" class="form-control" id="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19">
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="cardExpiry" class="form-label">Validade</label>
+                                            <input type="text" class="form-control" id="cardExpiry" placeholder="MM/AA" maxlength="5">
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="cardCvv" class="form-label">CVV</label>
+                                            <input type="text" class="form-control" id="cardCvv" placeholder="123" maxlength="4">
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="cardName" class="form-label">Nome no Cartão</label>
+                                        <input type="text" class="form-control" id="cardName" placeholder="Nome como está no cartão">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="installments" class="form-label">Parcelamento</label>
+                                        <select class="form-select" id="installments">
+                                            <option value="1">1x de R$ 49,99 (sem juros)</option>
+                                            <option value="2">2x de R$ 25,00 (sem juros)</option>
+                                            <option value="3">3x de R$ 16,67 (sem juros)</option>
+                                        </select>
+                                    </div>
+                                    <button type="submit" class="btn btn-success btn-lg w-100">
+                                        <span class="btn-text">
+                                            <i class="fas fa-lock me-2"></i>Pagar com Segurança
+                                        </span>
+                                        <span class="loading d-none"></span>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Garantia e Segurança -->
+                    <div class="mt-4">
+                        <div class="row text-center">
+                            <div class="col-4">
+                                <i class="fas fa-shield-alt fa-2x text-success mb-2"></i>
+                                <small class="text-muted">Pagamento Seguro</small>
+                            </div>
+                            <div class="col-4">
+                                <i class="fas fa-undo fa-2x text-info mb-2"></i>
+                                <small class="text-muted">7 dias de Garantia</small>
+                            </div>
+                            <div class="col-4">
+                                <i class="fas fa-headset fa-2x text-warning mb-2"></i>
+                                <small class="text-muted">Suporte 24/7</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mt-4">
+                        <small class="text-muted">
+                            Ao continuar, você concorda com nossos 
+                            <a href="#" class="text-decoration-none">termos de uso</a> e 
+                            <a href="#" class="text-decoration-none">política de privacidade</a>
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.payment-method {
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.payment-method:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.payment-method.selected {
+    border-color: var(--primary-color);
+    background: linear-gradient(135deg, rgba(79, 70, 229, 0.1) 0%, rgba(6, 182, 212, 0.1) 100%);
+}
+
+.qr-code-placeholder {
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.payment-form {
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(79, 70, 229, 0.25);
+}
+</style>
+
+<script>
+let selectedPaymentMethod = null;
+
+// Seleção do método de pagamento
+document.querySelectorAll('.payment-method').forEach(method => {
+    method.addEventListener('click', function() {
+        // Remover seleção anterior
+        document.querySelectorAll('.payment-method').forEach(m => m.classList.remove('selected'));
+        document.querySelectorAll('.payment-form').forEach(f => f.classList.add('d-none'));
+        
+        // Selecionar novo método
+        this.classList.add('selected');
+        selectedPaymentMethod = this.dataset.method;
+        
+        // Mostrar formulário correspondente
+        document.getElementById(selectedPaymentMethod + 'Payment').classList.remove('d-none');
+    });
+});
+
+// Formatação do número do cartão
+document.getElementById('cardNumber').addEventListener('input', function() {
+    let value = this.value.replace(/\s/g, '').replace(/[^0-9]/gi, '');
+    let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
+    this.value = formattedValue;
+});
+
+// Formatação da validade
+document.getElementById('cardExpiry').addEventListener('input', function() {
+    let value = this.value.replace(/\D/g, '');
+    if (value.length >= 2) {
+        value = value.substring(0, 2) + '/' + value.substring(2, 4);
+    }
+    this.value = value;
+});
+
+// Formatação do CVV
+document.getElementById('cardCvv').addEventListener('input', function() {
+    this.value = this.value.replace(/[^0-9]/g, '');
+});
+
+// Copiar chave PIX
+function copyPixKey() {
+    const pixKey = document.getElementById('pixKey');
+    pixKey.select();
+    document.execCommand('copy');
+    showNotification('Chave PIX copiada!', 'success');
+}
+
+// Verificar pagamento PIX
+function checkPixPayment() {
+    // Simular verificação de pagamento
+    showNotification('Verificando pagamento...', 'info');
+    
+    setTimeout(() => {
+        // Simular pagamento aprovado
+        showNotification('Pagamento aprovado! Redirecionando...', 'success');
+        setTimeout(() => {
+            window.location.href = '/dashboard';
+        }, 2000);
+    }, 3000);
+}
+
+// Formulário de cartão
+document.getElementById('cardForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const btnText = submitBtn.querySelector('.btn-text');
+    const loading = submitBtn.querySelector('.loading');
+    
+    // Validações básicas
+    const cardNumber = document.getElementById('cardNumber').value.replace(/\s/g, '');
+    const cardExpiry = document.getElementById('cardExpiry').value;
+    const cardCvv = document.getElementById('cardCvv').value;
+    const cardName = document.getElementById('cardName').value;
+    
+    if (cardNumber.length < 16) {
+        showNotification('Número do cartão inválido', 'danger');
+        return;
+    }
+    
+    if (cardExpiry.length < 5) {
+        showNotification('Data de validade inválida', 'danger');
+        return;
+    }
+    
+    if (cardCvv.length < 3) {
+        showNotification('CVV inválido', 'danger');
+        return;
+    }
+    
+    if (!cardName.trim()) {
+        showNotification('Nome no cartão é obrigatório', 'danger');
+        return;
+    }
+    
+    // Mostrar loading
+    btnText.classList.add('d-none');
+    loading.classList.remove('d-none');
+    submitBtn.disabled = true;
+    
+    // Simular processamento do pagamento
+    setTimeout(() => {
+        showNotification('Pagamento processado com sucesso!', 'success');
+        setTimeout(() => {
+            window.location.href = '/dashboard';
+        }, 2000);
+    }, 3000);
+});
+
+// Integração com Mercado Pago (simulada)
+function initMercadoPago() {
+    // Aqui seria inicializada a integração real com o Mercado Pago
+    console.log('Mercado Pago SDK inicializado');
+}
+
+// Inicializar página
+document.addEventListener('DOMContentLoaded', function() {
+    initMercadoPago();
+});
+</script>
+{% endblock %}
+

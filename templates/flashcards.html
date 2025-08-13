@@ -1,0 +1,554 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="h3 mb-0">
+                        <i class="fas fa-cards-blank me-2 text-primary"></i>Meus Flashcards
+                    </h1>
+                    <p class="text-muted mb-0">Gerencie seus cards de estudo</p>
+                </div>
+                <div>
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newCardModal">
+                        <i class="fas fa-plus me-2"></i>Novo Flashcard
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="filterCategory" class="form-label">Filtrar por Categoria</label>
+                            <select class="form-select" id="filterCategory">
+                                <option value="">Todas as categorias</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="searchCards" class="form-label">Buscar</label>
+                            <input type="text" class="form-control" id="searchCards" placeholder="Buscar por pergunta ou resposta...">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <h4 class="text-primary" id="totalCards">0</h4>
+                            <small class="text-muted">Total</small>
+                        </div>
+                        <div class="col-4">
+                            <h4 class="text-success" id="studiedToday">0</h4>
+                            <small class="text-muted">Estudados Hoje</small>
+                        </div>
+                        <div class="col-4">
+                            <h4 class="text-warning" id="pendingReview">0</h4>
+                            <small class="text-muted">Para Revisar</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lista de Flashcards -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list me-2"></i>Seus Flashcards
+                    </h5>
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-outline-primary btn-sm active" id="gridView">
+                            <i class="fas fa-th"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-primary btn-sm" id="listView">
+                            <i class="fas fa-list"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div id="flashcardsContainer">
+                        <div class="text-center py-5">
+                            <i class="fas fa-spinner fa-spin fa-2x text-muted"></i>
+                            <p class="text-muted mt-2">Carregando flashcards...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Novo/Editar Flashcard -->
+<div class="modal fade" id="newCardModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-plus me-2"></i>Novo Flashcard
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="cardForm">
+                <div class="modal-body">
+                    <input type="hidden" id="cardId">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="cardCategory" class="form-label">Categoria</label>
+                            <select class="form-select" id="cardCategory" required>
+                                <option value="">Selecione uma categoria</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="reviewDate" class="form-label">Agendar Revisão</label>
+                            <select class="form-select" id="reviewDate">
+                                <option value="">Sem agendamento</option>
+                                <option value="10">Em 10 dias</option>
+                                <option value="15">Em 15 dias</option>
+                                <option value="30">Em 30 dias</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="cardQuestion" class="form-label">Pergunta</label>
+                        <textarea class="form-control" id="cardQuestion" rows="4" required placeholder="Digite a pergunta do flashcard..."></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="cardAnswer" class="form-label">Resposta</label>
+                        <textarea class="form-control" id="cardAnswer" rows="4" required placeholder="Digite a resposta do flashcard..."></textarea>
+                    </div>
+                    
+                    <!-- Preview do Card -->
+                    <div class="mb-3">
+                        <label class="form-label">Preview</label>
+                        <div class="flashcard" id="previewCard">
+                            <div class="flashcard-inner">
+                                <div class="flashcard-front">
+                                    <h5 id="previewQuestion">Sua pergunta aparecerá aqui</h5>
+                                </div>
+                                <div class="flashcard-back">
+                                    <h5 id="previewAnswer">Sua resposta aparecerá aqui</h5>
+                                </div>
+                            </div>
+                        </div>
+                        <small class="text-muted">Clique no card para ver a animação</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">
+                        <span class="btn-text">
+                            <i class="fas fa-save me-2"></i>Salvar
+                        </span>
+                        <span class="loading d-none"></span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Confirmação de Exclusão -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-trash me-2 text-danger"></i>Confirmar Exclusão
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Tem certeza que deseja excluir este flashcard?</p>
+                <p class="text-muted">Esta ação não pode ser desfeita.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="confirmDelete">
+                    <i class="fas fa-trash me-2"></i>Excluir
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.flashcard {
+    height: 200px;
+    cursor: pointer;
+}
+
+.card-item {
+    transition: transform 0.3s ease;
+}
+
+.card-item:hover {
+    transform: translateY(-5px);
+}
+
+.card-actions {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.card-item:hover .card-actions {
+    opacity: 1;
+}
+
+.preview-card {
+    height: 150px;
+    border: 2px dashed #dee2e6;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8f9fa;
+}
+</style>
+
+<script>
+let flashcards = [];
+let currentView = 'grid';
+let editingCardId = null;
+
+// Carregar categorias
+async function loadCategories() {
+    try {
+        const response = await fetch('/api/categories');
+        const categories = await response.json();
+        
+        const selects = ['cardCategory', 'filterCategory'];
+        selects.forEach(selectId => {
+            const select = document.getElementById(selectId);
+            const defaultOption = selectId === 'filterCategory' ? 
+                '<option value="">Todas as categorias</option>' : 
+                '<option value="">Selecione uma categoria</option>';
+            
+            select.innerHTML = defaultOption;
+            
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category.id;
+                option.textContent = category.name;
+                select.appendChild(option);
+            });
+        });
+    } catch (error) {
+        console.error('Erro ao carregar categorias:', error);
+    }
+}
+
+// Carregar flashcards
+async function loadFlashcards() {
+    try {
+        const response = await fetch('/api/flashcards');
+        flashcards = await response.json();
+        
+        updateStats();
+        renderFlashcards();
+    } catch (error) {
+        console.error('Erro ao carregar flashcards:', error);
+        document.getElementById('flashcardsContainer').innerHTML = `
+            <div class="text-center py-5">
+                <i class="fas fa-exclamation-triangle fa-2x text-warning"></i>
+                <p class="text-muted mt-2">Erro ao carregar flashcards</p>
+            </div>
+        `;
+    }
+}
+
+// Atualizar estatísticas
+function updateStats() {
+    document.getElementById('totalCards').textContent = flashcards.length;
+    document.getElementById('studiedToday').textContent = '0'; // Implementar lógica
+    document.getElementById('pendingReview').textContent = '0'; // Implementar lógica
+}
+
+// Renderizar flashcards
+function renderFlashcards() {
+    const container = document.getElementById('flashcardsContainer');
+    
+    if (flashcards.length === 0) {
+        container.innerHTML = `
+            <div class="text-center py-5">
+                <i class="fas fa-cards-blank fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">Nenhum flashcard encontrado</h5>
+                <p class="text-muted">Comece criando seu primeiro flashcard!</p>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newCardModal">
+                    <i class="fas fa-plus me-2"></i>Criar Primeiro Card
+                </button>
+            </div>
+        `;
+        return;
+    }
+    
+    if (currentView === 'grid') {
+        renderGridView(container);
+    } else {
+        renderListView(container);
+    }
+}
+
+// Renderizar visualização em grade
+function renderGridView(container) {
+    const html = `
+        <div class="row">
+            ${flashcards.map(card => `
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card card-item position-relative">
+                        <div class="card-actions">
+                            <button class="btn btn-sm btn-outline-primary me-1" onclick="editCard(${card.id})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteCard(${card.id})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <span class="badge bg-primary">${card.category}</span>
+                                <small class="text-muted">ID: ${card.id}</small>
+                            </div>
+                            <h6 class="card-title">${card.question.substring(0, 100)}${card.question.length > 100 ? '...' : ''}</h6>
+                            <p class="card-text text-muted small">${card.answer.substring(0, 80)}${card.answer.length > 80 ? '...' : ''}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <button class="btn btn-sm btn-outline-success" onclick="studyCard(${card.id})">
+                                    <i class="fas fa-book-open me-1"></i>Estudar
+                                </button>
+                                <button class="btn btn-sm btn-outline-warning" onclick="scheduleReview(${card.id})">
+                                    <i class="fas fa-redo me-1"></i>Revisar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+    container.innerHTML = html;
+}
+
+// Renderizar visualização em lista
+function renderListView(container) {
+    const html = `
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Categoria</th>
+                        <th>Pergunta</th>
+                        <th>Resposta</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${flashcards.map(card => `
+                        <tr>
+                            <td><span class="badge bg-primary">${card.category}</span></td>
+                            <td>${card.question.substring(0, 100)}${card.question.length > 100 ? '...' : ''}</td>
+                            <td>${card.answer.substring(0, 100)}${card.answer.length > 100 ? '...' : ''}</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary me-1" onclick="editCard(${card.id})">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-success me-1" onclick="studyCard(${card.id})">
+                                    <i class="fas fa-book-open"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="deleteCard(${card.id})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        </div>
+    `;
+    container.innerHTML = html;
+}
+
+// Editar card
+function editCard(cardId) {
+    const card = flashcards.find(c => c.id === cardId);
+    if (!card) return;
+    
+    editingCardId = cardId;
+    document.getElementById('cardId').value = cardId;
+    document.getElementById('cardQuestion').value = card.question;
+    document.getElementById('cardAnswer').value = card.answer;
+    
+    document.querySelector('#newCardModal .modal-title').innerHTML = 
+        '<i class="fas fa-edit me-2"></i>Editar Flashcard';
+    
+    new bootstrap.Modal(document.getElementById('newCardModal')).show();
+}
+
+// Excluir card
+function deleteCard(cardId) {
+    editingCardId = cardId;
+    new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+
+// Estudar card individual
+function studyCard(cardId) {
+    window.location.href = `/study?card=${cardId}`;
+}
+
+// Agendar revisão
+function scheduleReview(cardId) {
+    // Implementar lógica de agendamento
+    showNotification('Funcionalidade de revisão será implementada em breve', 'info');
+}
+
+// Form de flashcard
+document.getElementById('cardForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const btnText = submitBtn.querySelector('.btn-text');
+    const loading = submitBtn.querySelector('.loading');
+    
+    btnText.classList.add('d-none');
+    loading.classList.remove('d-none');
+    submitBtn.disabled = true;
+    
+    const data = {
+        category_id: document.getElementById('cardCategory').value,
+        question: document.getElementById('cardQuestion').value,
+        answer: document.getElementById('cardAnswer').value
+    };
+    
+    try {
+        const url = editingCardId ? `/api/flashcards/${editingCardId}` : '/api/flashcards';
+        const method = editingCardId ? 'PUT' : 'POST';
+        
+        const response = await fetch(url, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        });
+        
+        if (response.ok) {
+            const message = editingCardId ? 'Flashcard atualizado com sucesso!' : 'Flashcard criado com sucesso!';
+            showNotification(message, 'success');
+            
+            document.getElementById('newCardModal').querySelector('.btn-close').click();
+            this.reset();
+            editingCardId = null;
+            
+            // Recarregar flashcards
+            await loadFlashcards();
+        } else {
+            const result = await response.json();
+            showNotification(result.error || 'Erro ao salvar flashcard', 'danger');
+        }
+    } catch (error) {
+        showNotification('Erro de conexão', 'danger');
+    } finally {
+        btnText.classList.remove('d-none');
+        loading.classList.add('d-none');
+        submitBtn.disabled = false;
+    }
+});
+
+// Confirmar exclusão
+document.getElementById('confirmDelete').addEventListener('click', async function() {
+    if (!editingCardId) return;
+    
+    try {
+        const response = await fetch(`/api/flashcards/${editingCardId}`, {
+            method: 'DELETE'
+        });
+        
+        if (response.ok) {
+            showNotification('Flashcard excluído com sucesso!', 'success');
+            document.getElementById('deleteModal').querySelector('.btn-close').click();
+            editingCardId = null;
+            
+            // Recarregar flashcards
+            await loadFlashcards();
+        } else {
+            showNotification('Erro ao excluir flashcard', 'danger');
+        }
+    } catch (error) {
+        showNotification('Erro de conexão', 'danger');
+    }
+});
+
+// Alternar visualizações
+document.getElementById('gridView').addEventListener('click', function() {
+    currentView = 'grid';
+    this.classList.add('active');
+    document.getElementById('listView').classList.remove('active');
+    renderFlashcards();
+});
+
+document.getElementById('listView').addEventListener('click', function() {
+    currentView = 'list';
+    this.classList.add('active');
+    document.getElementById('gridView').classList.remove('active');
+    renderFlashcards();
+});
+
+// Preview do card
+document.getElementById('cardQuestion').addEventListener('input', function() {
+    document.getElementById('previewQuestion').textContent = this.value || 'Sua pergunta aparecerá aqui';
+});
+
+document.getElementById('cardAnswer').addEventListener('input', function() {
+    document.getElementById('previewAnswer').textContent = this.value || 'Sua resposta aparecerá aqui';
+});
+
+// Animação do preview
+document.getElementById('previewCard').addEventListener('click', function() {
+    this.classList.toggle('flipped');
+});
+
+// Filtros
+document.getElementById('filterCategory').addEventListener('change', function() {
+    // Implementar filtro por categoria
+});
+
+document.getElementById('searchCards').addEventListener('input', function() {
+    // Implementar busca
+});
+
+// Reset modal ao fechar
+document.getElementById('newCardModal').addEventListener('hidden.bs.modal', function() {
+    document.getElementById('cardForm').reset();
+    document.getElementById('cardId').value = '';
+    editingCardId = null;
+    document.querySelector('#newCardModal .modal-title').innerHTML = 
+        '<i class="fas fa-plus me-2"></i>Novo Flashcard';
+    document.getElementById('previewQuestion').textContent = 'Sua pergunta aparecerá aqui';
+    document.getElementById('previewAnswer').textContent = 'Sua resposta aparecerá aqui';
+    document.getElementById('previewCard').classList.remove('flipped');
+});
+
+// Inicializar página
+document.addEventListener('DOMContentLoaded', function() {
+    loadCategories();
+    loadFlashcards();
+});
+</script>
+{% endblock %}
+
